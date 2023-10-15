@@ -24,16 +24,19 @@ def load_documents(directory : str):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size = config["TextSplitter"]["chunk_size"], 
                                                    chunk_overlap = config["TextSplitter"]["chunk_overlap"])
     documents = []
-    for item_path in tqdm(glob(directory + "*.pdf")):
+    for item_path in tqdm(glob(f"{directory}*.pdf")):
         loader = PyPDFLoader(item_path)
         documents.extend(loader.load_and_split(text_splitter=text_splitter))
 
     return documents
 
 def load_db(embedding_function, save_path=config["faiss_indexstore"]["save_path"], index_name=config["faiss_indexstore"]["index_name"]):
-    db = FAISS.load_local(folder_path=save_path, index_name=index_name, embeddings = embedding_function)
-    return db
+    return FAISS.load_local(
+        folder_path=save_path,
+        index_name=index_name,
+        embeddings=embedding_function,
+    )
 
 def save_db(db, save_path=config["faiss_indexstore"]["save_path"], index_name=config["faiss_indexstore"]["index_name"]):
     db.save_local(save_path, index_name)
-    print("Saved db to " + save_path + index_name)
+    print(f"Saved db to {save_path}{index_name}")
